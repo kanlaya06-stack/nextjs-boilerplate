@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Box, Cylinder, Torus, Cone } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { Store, Search, PlusCircle, X, Filter, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Store, Search, PlusCircle, X, Filter, ShoppingBag, ArrowLeft, Box as BoxIcon, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -16,6 +16,7 @@ const INITIAL_PRODUCTS = [
     price: 250,
     seller: 'กิตติพงษ์ (แผนกอิเล็กทรอนิกส์)',
     description: 'หนังสือพื้นฐานวงจรอิเล็กทรอนิกส์ สภาพดีมาก ไม่มีหน้าขาด อ่านจบแล้วส่งต่อให้รุ่นน้องครับ',
+    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
     type: 'book',
   },
   {
@@ -25,6 +26,7 @@ const INITIAL_PRODUCTS = [
     price: 180,
     seller: 'อนวัช (ช่างยนต์)',
     description: 'เสื้อช็อปปักโลโก้วิทยาลัย ขนาด L ซักสะอาดเรียบร้อย กระดุมครบทุกเม็ด',
+    imageUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80',
     type: 'shirt',
   },
   {
@@ -34,6 +36,7 @@ const INITIAL_PRODUCTS = [
     price: 420,
     seller: 'ธนกฤต (คอมพิวเตอร์)',
     description: 'บอร์ดทดลองพร้อมสายไฟและเซนเซอร์พื้นฐาน ซื้อมาเกินโครงงาน ไม่ได้ใช้งานครับ',
+    imageUrl: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?w=600&auto=format&fit=crop&q=80',
     type: 'tech',
   },
   {
@@ -43,6 +46,7 @@ const INITIAL_PRODUCTS = [
     price: 320,
     seller: 'ศิริพร (การบัญชี)',
     description: 'กระเป๋าเป้กันน้ำ มีช่องใส่โน้ตบุ๊กกันกระแทก ซิปใช้งานได้ปกติทุกช่อง',
+    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80',
     type: 'bag',
   },
 ];
@@ -104,6 +108,14 @@ export default function MarketPage() {
   const [products] = useState(INITIAL_PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState('ทั้งหมด');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // สถานะเก็บรายการสินค้าที่สลับเป็นโหมด 3D
+  const [active3DIds, setActive3DIds] = useState<Record<string, boolean>>({});
+
+  const toggle3DView = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // ไม่ให้กดสลับโหมดแล้วเผลอลิงก์ไปหน้าสินค้า
+    setActive3DIds(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const categories = ['ทั้งหมด', 'หนังสือ/การเรียน', 'เสื้อผ้า/เครื่องแต่งกาย', 'อุปกรณ์การเรียน', 'กระเป๋า/รองเท้า'];
 
@@ -196,51 +208,90 @@ export default function MarketPage() {
         {/* Product Cards Grid */}
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => router.push(`/product/${item.id}`)}
-                className="bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between cursor-pointer group"
-              >
-                <div className="h-52 bg-slate-50 relative flex items-center justify-center border-b border-slate-100">
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200/80 backdrop-blur-sm text-[10px] font-semibold text-slate-600 z-10">
-                    {item.category}
-                  </div>
-                  <Canvas camera={{ position: [0, 0, 4.8], fov: 45 }}>
-                    <RealisticProduct3D type={item.type} />
-                  </Canvas>
-                  <div className="absolute bottom-2 right-3 text-[10px] text-slate-400 group-hover:text-blue-600 font-medium transition-colors">
-                    🖱️ คลิกดูรายละเอียด
-                  </div>
-                </div>
+            {filteredProducts.map((item) => {
+              const is3D = active3DIds[item.id];
 
-                <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors line-clamp-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs text-slate-400 block">ราคา</span>
-                      <span className="text-lg font-extrabold text-blue-600">฿{item.price}</span>
+              return (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => router.push(`/product/${item.id}`)}
+                  className="bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between cursor-pointer group"
+                >
+                  <div className="h-56 bg-slate-50 relative flex items-center justify-center border-b border-slate-100 overflow-hidden">
+                    
+                    {/* หมวดหมู่สินค้า */}
+                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200/80 backdrop-blur-sm text-[10px] font-semibold text-slate-600 z-10">
+                      {item.category}
                     </div>
-                    <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
-                      {item.seller.split(' ')[0]}
-                    </span>
+
+                    {/* ปุ่มสลับ รูปจริง <-> โมเดล 3D */}
+                    <button
+                      onClick={(e) => toggle3DView(e, item.id)}
+                      className={`absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md transition-all z-20 flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                        is3D
+                          ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
+                          : 'bg-white/90 text-slate-700 border-slate-200 hover:bg-white'
+                      }`}
+                    >
+                      {is3D ? (
+                        <>
+                          <ImageIcon className="w-3.5 h-3.5" />
+                          <span>ดูรูปจริง</span>
+                        </>
+                      ) : (
+                        <>
+                          <BoxIcon className="w-3.5 h-3.5 text-blue-600" />
+                          <span>ดู 3D</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* แสดงผลตามโหมดที่เลือก */}
+                    {is3D ? (
+                      <Canvas camera={{ position: [0, 0, 4.8], fov: 45 }}>
+                        <RealisticProduct3D type={item.type} />
+                      </Canvas>
+                    ) : (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    )}
+
+                    <div className="absolute bottom-2 right-3 text-[10px] text-slate-400 group-hover:text-blue-600 font-medium transition-colors bg-white/80 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                      {is3D ? '🖱️ คลิกหมุน 3D' : '🔍 คลิกดูรายละเอียด'}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors line-clamp-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div>
+                        <span className="text-xs text-slate-400 block">ราคา</span>
+                        <span className="text-lg font-extrabold text-blue-600">฿{item.price}</span>
+                      </div>
+                      <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                        {item.seller.split(' ')[0]}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-16 bg-white border border-slate-200/80 rounded-3xl p-8 space-y-3">
