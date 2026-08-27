@@ -19,11 +19,56 @@ interface Product {
 }
 
 const mockProducts: Product[] = [
-  { id: 1, name: 'หนังสือชีววิทยา ม.ปลาย มือสอง', price: 150, seller: 'พี่เจ (เทคโนโลยีสารสนเทศ)', category: 'หนังสือ', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80', shape3d: 'box', color3d: '#3b82f6' },
-  { id: 2, name: 'หูฟังบลูทูธไร้สาย พร้อมเคส', price: 350, seller: 'ฟ้า (การบัญชี)', category: 'อิเล็กทรอนิกส์', image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80', shape3d: 'sphere', color3d: '#8b5cf6' },
-  { id: 3, name: 'เสื้อช็อปวิทยาลัย ไซส์ L', price: 200, seller: 'บอย (ช่างยนต์)', category: 'เสื้อผ้า', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&q=80', shape3d: 'torus', color3d: '#ec4899' },
-  { id: 4, name: 'กระเป๋าเป้สะพายหลัง กันน้ำ', price: 290, seller: 'เมย์ (การตลาด)', category: 'แฟชั่น', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80', shape3d: 'box', color3d: '#10b981' },
-  { id: 5, name: 'เครื่องคิดเลขวิทยาศาสตร์ Casio', price: 400, seller: 'นนท์ (อิเล็กทรอนิกส์)', category: 'อุปกรณ์การเรียน', image: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=400&q=80', shape3d: 'box', color3d: '#f59e0b' },
+  { 
+    id: 1, 
+    name: 'หนังสือชีววิทยา ม.ปลาย มือสอง', 
+    price: 150, 
+    seller: 'พี่เจ (เทคโนโลยีสารสนเทศ)', 
+    category: 'หนังสือ', 
+    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80', 
+    shape3d: 'box', 
+    color3d: '#2563eb' // สีฟ้าหนังสือ
+  },
+  { 
+    id: 2, 
+    name: 'หูฟังบลูทูธไร้สาย พร้อมเคส', 
+    price: 350, 
+    seller: 'ฟ้า (การบัญชี)', 
+    category: 'อิเล็กทรอนิกส์', 
+    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80', 
+    shape3d: 'box', 
+    color3d: '#7c3aed' // สีม่วงไอที
+  },
+  { 
+    id: 3, 
+    name: 'เสื้อช็อปวิทยาลัย ไซส์ L', 
+    price: 200, 
+    seller: 'บอย (ช่างยนต์)', 
+    category: 'เสื้อผ้า', 
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&q=80', 
+    shape3d: 'box', 
+    color3d: '#1e3a8a' // สีน้ำเงินกรมท่าเสื้อช็อป
+  },
+  { 
+    id: 4, 
+    name: 'กระเป๋าเป้สะพายหลัง กันน้ำ', 
+    price: 290, 
+    seller: 'เมย์ (การตลาด)', 
+    category: 'แฟชั่น', 
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80', 
+    shape3d: 'box', 
+    color3d: '#059669' // สีเขียวกระเป๋า
+  },
+  { 
+    id: 5, 
+    name: 'เครื่องคิดเลขวิทยาศาสตร์ Casio', 
+    price: 400, 
+    seller: 'นนท์ (อิเล็กทรอนิกส์)', 
+    category: 'อุปกรณ์การเรียน', 
+    image: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=400&q=80', 
+    shape3d: 'box', 
+    color3d: '#d97706' // สีส้มเครื่องคิดเลข
+  },
 ];
 
 function InteractiveProductMesh({ shape, color }: { shape: string; color: string }) {
@@ -42,21 +87,9 @@ function InteractiveProductMesh({ shape, color }: { shape: string; color: string
       <pointLight position={[-5, -5, -5]} intensity={0.5} />
       
       <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
-        {shape === 'box' && (
-          <Box ref={meshRef} args={[2, 2.8, 0.4]}>
-            <meshStandardMaterial color={color} roughness={0.3} metalness={0.5} />
-          </Box>
-        )}
-        {shape === 'sphere' && (
-          <Sphere ref={meshRef} args={[1.4, 64, 64]}>
-            <MeshWobbleMaterial color={color} factor={0.3} speed={2} roughness={0.2} metalness={0.8} />
-          </Sphere>
-        )}
-        {shape === 'torus' && (
-          <Torus ref={meshRef} args={[1.2, 0.5, 32, 100]}>
-            <meshStandardMaterial color={color} roughness={0.2} metalness={0.7} />
-          </Torus>
-        )}
+        <Box ref={meshRef} args={[2, 2.6, 0.5]}>
+          <meshStandardMaterial color={color} roughness={0.3} metalness={0.4} />
+        </Box>
       </Float>
       <OrbitControls enableZoom={true} autoRotate autoRotateSpeed={2} />
     </>
@@ -269,7 +302,7 @@ export default function HomePage() {
 
               <div className="flex items-center gap-2 mb-2 text-blue-500 text-sm font-semibold">
                 <Rotate3d className="w-4 h-4 animate-spin" />
-                <span>3D Interactive Viewer</span>
+                <span>3D Product Package Viewer</span>
               </div>
               <h3 className="text-xl font-bold mb-1">{selectedProduct3D.name}</h3>
               <p className="text-sm text-slate-400 mb-4">คลิกลากเมาส์เพื่อหมุนดูโมเดล 3D ได้ 360 องศา</p>
