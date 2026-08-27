@@ -1,28 +1,27 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Center, Html } from '@react-three/drei';
+import React, { useState, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Float, Box, Cylinder, Torus, Cone } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Store, Search, PlusCircle, X, 
-  Filter, ShoppingBag, ArrowRight, Box as BoxIcon, Eye, Loader2
+  Filter, ShoppingBag, ArrowRight, Box as BoxIcon, Eye
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Mock Data สินค้า - กำหนด Path ของไฟล์โมเดล .glb จริงไว้ใน modelUrl
+// Mock Data สินค้าพร้อม URL รูปภาพจริง และประเภท 3D
 const INITIAL_PRODUCTS = [
   {
     id: '1',
     name: 'หนังสือเรียน Basic Electronics 3D',
     category: 'หนังสือ/การเรียน',
     price: 250,
-    condition: 'สภาพ 95%',
+    condition: 'สภาพ 95% (มีไฮไลท์นิดหน่อย)',
     seller: 'กิตติพงษ์ (แผนกอิเล็กทรอนิกส์)',
-    description: 'หนังสือพื้นฐานวงจรอิเล็กทรอนิกส์ สภาพดีมาก อ่านจบแล้วส่งต่อครับ',
+    description: 'หนังสือพื้นฐานวงจรอิเล็กทรอนิกส์ สภาพดีมาก ไม่มีหน้าขาด อ่านจบแล้วส่งต่อให้รุ่นน้องครับ',
     imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
-    // วางไฟล์ .glb ไว้ที่ public/models/book.glb
-    modelUrl: '/models/book.glb', 
+    type: 'book',
   },
   {
     id: '2',
@@ -33,7 +32,7 @@ const INITIAL_PRODUCTS = [
     seller: 'อนวัช (ช่างยนต์)',
     description: 'เสื้อช็อปปักโลโก้วิทยาลัย ขนาด L ซักสะอาดเรียบร้อย กระดุมครบทุกเม็ด',
     imageUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
-    modelUrl: '/models/shirt.glb',
+    type: 'shirt',
   },
   {
     id: '3',
@@ -44,7 +43,7 @@ const INITIAL_PRODUCTS = [
     seller: 'ธนกฤต (คอมพิวเตอร์)',
     description: 'บอร์ดทดลองพร้อมสายไฟและเซนเซอร์พื้นฐาน ซื้อมาเกินโครงงาน ไม่ได้ใช้งานครับ',
     imageUrl: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80',
-    modelUrl: '/models/arduino.glb',
+    type: 'tech',
   },
   {
     id: '4',
@@ -55,30 +54,89 @@ const INITIAL_PRODUCTS = [
     seller: 'ศิริพร (การบัญชี)',
     description: 'กระเป๋าเป้กันน้ำ มีช่องใส่โน้ตบุ๊กกันกระแทก ซิปใช้งานได้ปกติทุกช่อง',
     imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80',
-    modelUrl: '/models/backpack.glb',
+    type: 'bag',
   },
 ];
 
-// Component สำหรับโหลดและแสดงผลไฟล์โมเดล .glb / .gltf
-function ModelViewer({ modelUrl }: { modelUrl: string }) {
-  const { scene } = useGLTF(modelUrl);
-  
-  return (
-    <Center>
-      <primitive object={scene} scale={1.5} />
-    </Center>
-  );
-}
+// Component โมเดล 3D ที่จะโหลดเฉพาะตอนเปิด Popup/Modal
+function RealisticProduct3D({ type }: { type: string }) {
+  const groupRef = useRef<any>(null);
 
-// ตัวโหลดระหว่างรอไฟล์ 3D ดาวน์โหลด
-function CanvasLoader() {
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.6;
+    }
+  });
+
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-2 text-slate-500">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="text-xs font-semibold whitespace-nowrap">กำลังโหลดโมเดล 3D...</span>
-      </div>
-    </Html>
+    <group ref={groupRef}>
+      <ambientLight intensity={1.8} />
+      <directionalLight position={[5, 8, 5]} intensity={2.5} color="#ffffff" />
+      <directionalLight position={[-5, -4, -4]} intensity={0.8} color="#93c5fd" />
+
+      <Float speed={2} rotationIntensity={0.3} floatIntensity={0.6}>
+        {type === 'book' && (
+          <group>
+            <Box args={[1.8, 2.4, 0.35]}>
+              <meshStandardMaterial color="#2563eb" roughness={0.3} />
+            </Box>
+            <Box args={[1.68, 2.3, 0.28]} position={[0.05, 0, 0]}>
+              <meshStandardMaterial color="#f8fafc" roughness={0.9} />
+            </Box>
+          </group>
+        )}
+
+        {type === 'shirt' && (
+          <group>
+            <Box args={[1.8, 2.2, 0.5]} position={[0, -0.1, 0]}>
+              <meshStandardMaterial color="#059669" roughness={0.4} />
+            </Box>
+            <Cone args={[0.5, 0.4, 4]} position={[0, 1.1, 0]} rotation={[0, 0, Math.PI]}>
+              <meshStandardMaterial color="#047857" />
+            </Cone>
+            <Box args={[0.6, 0.9, 0.45]} position={[-1.1, 0.5, 0]} rotation={[0, 0, -0.4]}>
+              <meshStandardMaterial color="#059669" />
+            </Box>
+            <Box args={[0.6, 0.9, 0.45]} position={[1.1, 0.5, 0]} rotation={[0, 0, 0.4]}>
+              <meshStandardMaterial color="#059669" />
+            </Box>
+          </group>
+        )}
+
+        {type === 'tech' && (
+          <group>
+            <Box args={[2.4, 1.6, 0.15]}>
+              <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.1} />
+            </Box>
+            <Box args={[0.8, 0.6, 0.1]} position={[-0.4, 0.2, 0.12]}>
+              <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
+            </Box>
+            <Cylinder args={[0.2, 0.2, 0.4, 16]} position={[0.6, -0.2, 0.25]} rotation={[Math.PI / 2, 0, 0]}>
+              <meshStandardMaterial color="#3b82f6" metalness={0.5} />
+            </Cylinder>
+            <Cylinder args={[0.18, 0.18, 0.35, 16]} position={[0.6, 0.3, 0.22]} rotation={[Math.PI / 2, 0, 0]}>
+              <meshStandardMaterial color="#ef4444" metalness={0.5} />
+            </Cylinder>
+          </group>
+        )}
+
+        {type === 'bag' && (
+          <group position={[0, -0.1, 0]}>
+            <Box args={[1.7, 2.2, 0.9]}>
+              <meshStandardMaterial color="#7c3aed" roughness={0.5} />
+            </Box>
+            <Box args={[1.3, 1.1, 0.35]} position={[0, -0.4, 0.55]}>
+              <meshStandardMaterial color="#6d28d9" roughness={0.5} />
+            </Box>
+            <Torus args={[0.3, 0.08, 16, 32, Math.PI]} position={[0, 1.15, 0]}>
+              <meshStandardMaterial color="#4c1d95" />
+            </Torus>
+          </group>
+        )}
+      </Float>
+
+      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.2} />
+    </group>
   );
 }
 
@@ -110,7 +168,7 @@ export default function MarketplacePage() {
             </div>
             <div>
               <h1 className="font-extrabold text-xl text-slate-900 tracking-tight flex items-center gap-2">
-                College Market <span className="text-blue-600 text-xs px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 font-bold">GLTF 3D</span>
+                College Market <span className="text-blue-600 text-xs px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 font-bold">3D</span>
               </h1>
               <p className="text-xs text-slate-500">ตลาดซื้อขายมือสองภายในวิทยาลัย</p>
             </div>
@@ -175,7 +233,7 @@ export default function MarketplacePage() {
           </h2>
         </div>
 
-        {/* Grid สินค้า */}
+        {/* Product Cards Grid (แสดงรูปภาพจริง) */}
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((item) => (
@@ -207,7 +265,7 @@ export default function MarketplacePage() {
                   <div className="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="bg-white/90 backdrop-blur-md text-slate-900 font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-1.5">
                       <BoxIcon className="w-4 h-4 text-blue-600" />
-                      เปิดดูโมเดล 3D
+                      คลิกเพื่อดูแบบ 3D
                     </span>
                   </div>
                 </div>
@@ -239,11 +297,17 @@ export default function MarketplacePage() {
         ) : (
           <div className="text-center py-16 bg-white border border-slate-200/80 rounded-3xl p-8 space-y-3">
             <p className="text-slate-400 font-medium text-base">ไม่พบสินค้าที่คุณค้นหา</p>
+            <button 
+              onClick={() => { setSearchQuery(''); setSelectedCategory('ทั้งหมด'); }}
+              className="text-xs text-blue-600 font-semibold hover:underline"
+            >
+              ล้างการค้นหาทั้งหมด
+            </button>
           </div>
         )}
       </main>
 
-      {/* Modal Popup แสดงผลโมเดล 3D (.glb) */}
+      {/* Modal Popup (สลับดูรูปจริงกับ 3D Interactive) */}
       <AnimatePresence>
         {activeProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -262,10 +326,10 @@ export default function MarketplacePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2">
                 
-                {/* 3D Canvas / Image Viewer Area */}
-                <div className="h-72 md:h-full bg-slate-50 flex items-center justify-center relative border-b md:border-b-0 md:border-r border-slate-100 min-h-[320px]">
+                {/* Visual View Area (3D or Image) */}
+                <div className="h-72 md:h-full bg-slate-50 flex items-center justify-center relative border-b md:border-b-0 md:border-r border-slate-100 min-h-[300px]">
                   
-                  {/* Mode Switcher */}
+                  {/* Mode Switcher Buttons */}
                   <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-slate-200/80 shadow-sm flex items-center gap-1">
                     <button
                       onClick={() => setViewMode('3d')}
@@ -274,7 +338,7 @@ export default function MarketplacePage() {
                       }`}
                     >
                       <BoxIcon className="w-3.5 h-3.5" />
-                      <span>โมเดล 3D</span>
+                      <span>มุมมอง 3D</span>
                     </button>
                     <button
                       onClick={() => setViewMode('image')}
@@ -283,27 +347,18 @@ export default function MarketplacePage() {
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>รูปถ่ายจริง</span>
+                      <span>รูปจริง</span>
                     </button>
                   </div>
 
-                  {/* Render 3D GLTF File */}
+                  {/* Render 3D Canvas or Real Image */}
                   {viewMode === '3d' ? (
                     <>
-                      <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
-                        <ambientLight intensity={1.5} />
-                        <directionalLight position={[5, 10, 5]} intensity={2} />
-                        <directionalLight position={[-5, -5, -5]} intensity={0.5} />
-                        
-                        <Suspense fallback={<CanvasLoader />}>
-                          <ModelViewer modelUrl={activeProduct.modelUrl} />
-                        </Suspense>
-
-                        <OrbitControls enableZoom={true} autoRotate autoRotateSpeed={1} />
+                      <Canvas camera={{ position: [0, 0, 4.8], fov: 45 }}>
+                        <RealisticProduct3D type={activeProduct.type} />
                       </Canvas>
-
                       <span className="absolute bottom-3 text-[11px] text-slate-400 bg-white/90 px-3 py-1 rounded-full border border-slate-200/60 backdrop-blur-sm pointer-events-none">
-                        🖱️ ซูม/หมุนดูโมเดล 3D ได้ 360°
+                        🖱️ หมุนสินค้าได้รอบทิศทาง 360°
                       </span>
                     </>
                   ) : (
@@ -315,7 +370,7 @@ export default function MarketplacePage() {
                   )}
                 </div>
 
-                {/* Content Info */}
+                {/* Details Content */}
                 <div className="p-6 space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
                     <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/60">
@@ -337,7 +392,7 @@ export default function MarketplacePage() {
                     onClick={() => alert(`ติดต่อผู้ขาย: ${activeProduct.seller}`)}
                     className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>ติดต่อผู้ขาย</span>
+                    <span>แชทติดต่อผู้ซื้อขาย</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
