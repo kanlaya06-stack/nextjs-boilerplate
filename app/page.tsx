@@ -39,6 +39,11 @@ function Hero3DItem() {
   );
 }
 
+      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.2} />
+    </>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-800 font-sans relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
