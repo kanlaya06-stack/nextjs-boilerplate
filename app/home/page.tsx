@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Sphere, MeshWobbleMaterial, Box, Torus } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Store, Sun, Moon, Search, Plus, Compass, MessageCircle, Sparkles, X, Rotate3d } from 'lucide-react';
+import { Store, Sun, Moon, Search, Plus, Compass, MessageCircle, Sparkles, X, Rotate3d, ZoomIn } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -67,6 +67,7 @@ export default function HomePage() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct3D, setSelectedProduct3D] = useState<Product | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const filteredProducts = mockProducts.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,7 +85,6 @@ export default function HomePage() {
       }}
       className="font-sans relative"
     >
-      {/* Background Ambient Glow */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-30">
         <div 
           style={{ backgroundColor: isDarkMode ? '#2563eb' : '#93c5fd' }}
@@ -167,11 +167,20 @@ export default function HomePage() {
               }}
               className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-3xl border shadow-md backdrop-blur-md transition-all hover:border-blue-500/50"
             >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full sm:w-28 h-28 object-cover rounded-2xl"
-              />
+              {/* Product Image Clickable */}
+              <div 
+                onClick={() => setSelectedImage(product.image)}
+                className="relative cursor-pointer group w-full sm:w-28 h-28 overflow-hidden rounded-2xl"
+              >
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                  <ZoomIn className="w-6 h-6" />
+                </div>
+              </div>
 
               <div className="flex-1 w-full text-left">
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2 bg-blue-500/20 text-blue-400 border border-blue-500/30">
@@ -198,6 +207,35 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* IMAGE PREVIEW MODAL */}
+      <AnimatePresence>
+        {selectedImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedImage(null)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-2xl max-h-[80vh] z-10 overflow-hidden rounded-3xl border border-white/20 shadow-2xl"
+            >
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white z-20"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <img src={selectedImage} alt="Product Preview" className="w-full h-full object-contain max-h-[80vh]" />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 3D MODAL POPUP */}
       <AnimatePresence>
