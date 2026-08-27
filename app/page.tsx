@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import { Store, ArrowRight, ShieldCheck, Box, MessageSquare, Sparkles, Layers } from 'lucide-react';
 import Link from 'next/link';
 
-// 3D Model Display for Hero Section (Minimal Smooth Style)
 function Hero3DItem() {
   const meshRef = useRef<any>(null);
 
@@ -26,18 +25,9 @@ function Hero3DItem() {
 
       <Float speed={2} rotationIntensity={0.8} floatIntensity={1.2}>
         <RoundedBox ref={meshRef} args={[2.2, 2.8, 0.7]} radius={0.2} smoothness={4}>
-          <meshStandardMaterial 
-            color="#2563eb" 
-            roughness={0.2} 
-            metalness={0.1} 
-          />
+          <meshStandardMaterial color="#2563eb" roughness={0.2} metalness={0.1} />
         </RoundedBox>
       </Float>
-
-      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.2} />
-    </>
-  );
-}
 
       <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.2} />
     </>
@@ -47,16 +37,12 @@ function Hero3DItem() {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-800 font-sans relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
-      
-      {/* Background Subtle Gradient Blobs */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-60">
         <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]" />
         <div className="absolute top-[30%] right-[-5%] w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[140px]" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-6 min-h-screen flex flex-col justify-between">
-        
-        {/* Top Navbar */}
         <header className="flex justify-between items-center py-4">
           <div className="flex items-center gap-3 bg-white/80 border border-slate-200/80 px-5 py-2.5 rounded-2xl backdrop-blur-md shadow-sm">
             <Store className="w-5 h-5 text-blue-600" />
@@ -77,10 +63,7 @@ export default function LandingPage() {
           </Link>
         </header>
 
-        {/* Hero Section */}
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center my-auto py-12">
-          
-          {/* Left Content */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,16 +77,13 @@ export default function LandingPage() {
 
             <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
               ตลาดซื้อขาย <br />
-              <span className="text-blue-600">
-                มินิมอล 3D
-              </span> สำหรับนักศึกษา
+              <span className="text-blue-600">มินิมอล 3D</span> สำหรับนักศึกษา
             </h1>
 
             <p className="text-slate-500 text-base sm:text-lg max-w-lg font-normal leading-relaxed">
               ส่งต่ออุปกรณ์การเรียน เสื้อผ้า และไอเทมมือสองภายในวิทยาลัยได้อย่างมั่นใจ สัมผัสและมุมมองสินค้า 360° ในรูปแบบเรียบง่าย
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link href="/home">
                 <motion.button
@@ -127,7 +107,6 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200/60 max-w-md">
               <div>
                 <h4 className="text-2xl font-bold text-slate-900">100%</h4>
@@ -144,7 +123,6 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          {/* Right 3D Visual Viewer */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -152,7 +130,6 @@ export default function LandingPage() {
             className="lg:col-span-5 relative flex items-center justify-center"
           >
             <div className="relative w-full h-[360px] sm:h-[420px] bg-white border border-slate-200/80 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden flex flex-col items-center justify-center">
-              
               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs text-slate-600 z-10 font-medium">
                 <Box className="w-3.5 h-3.5 text-blue-600" />
                 <span>3D Preview</span>
@@ -169,10 +146,8 @@ export default function LandingPage() {
               </div>
             </div>
           </motion.div>
-
         </main>
 
-        {/* Feature Cards Footer */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
           <div className="p-5 rounded-2xl bg-white border border-slate-200/70 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
@@ -204,7 +179,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
       </div>
     </div>
   );
