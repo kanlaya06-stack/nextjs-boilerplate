@@ -8,7 +8,6 @@ import Link from 'next/link';
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-800 font-sans relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
-      
       {/* Background Subtle Light Blobs */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-60">
         <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]" />
@@ -16,7 +15,6 @@ export default function LandingPage() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-6 min-h-screen flex flex-col justify-between">
-        
         {/* Top Navbar */}
         <header className="flex justify-between items-center py-4">
           <div className="flex items-center gap-3 bg-white/80 border border-slate-200/80 px-5 py-2.5 rounded-2xl backdrop-blur-md shadow-sm">
@@ -40,7 +38,6 @@ export default function LandingPage() {
 
         {/* Hero Section */}
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center my-auto py-12">
-          
           {/* Left Content */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -111,7 +108,6 @@ export default function LandingPage() {
             className="lg:col-span-5 relative flex items-center justify-center"
           >
             <div className="relative w-full h-[360px] sm:h-[420px] bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl shadow-xl shadow-blue-500/20 overflow-hidden flex flex-col items-center justify-center p-8 text-white text-center">
-              
               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs text-white z-10 font-medium">
                 <Box className="w-3.5 h-3.5" />
                 <span>3D Interactive Market</span>
@@ -131,7 +127,6 @@ export default function LandingPage() {
               </div>
             </div>
           </motion.div>
-
         </main>
 
         {/* Feature Cards Footer */}
@@ -166,7 +161,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
       </div>
     </div>
   );
