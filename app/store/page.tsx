@@ -6,7 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { ShoppingCart, Plus, LogOut, Box } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const Product3D = dynamic(() => import("@/app/components/Product3D"), {
+const Product3D = dynamic(() => import("@/components/Product3D"), {
   ssr: false,
   loading: () => <div className="h-64 w-full bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg" />,
 });
@@ -24,7 +24,6 @@ const initialProducts: Product[] = [
   { id: 1, name: "3D Cubical Smart Box", price: 1290, color: "#3b82f6", shape: "box", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" },
   { id: 2, name: "Orbital Sound Sphere", price: 2490, color: "#ef4444", shape: "sphere", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" },
   { id: 3, name: "Futuristic Ring Gadget", price: 3500, color: "#10b981", shape: "torus", image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" },
-  { id: 4, name: "Pro Gaming Cube", price: 4990, color: "#8b5cf6", shape: "box", image: "https://images.unsplash.com/photo-1608248597261-833258657640?w=500" },
 ];
 
 export default function StorePage() {
@@ -91,7 +90,7 @@ export default function StorePage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <div key={product.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
               <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />

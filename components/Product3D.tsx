@@ -26,9 +26,6 @@ export default function Product3D({ color = "#3b82f6", shape = "box" }: Product3
         </mesh>
         <OrbitControls enableZoom={true} autoRotate autoRotateSpeed={2} />
       </Canvas>
-      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded pointer-events-none">
-        หมุนดูแบบ 3D ได้
-      </div>
     </div>
   );
 }
