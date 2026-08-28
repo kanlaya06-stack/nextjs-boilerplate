@@ -6,7 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { ShoppingCart, Plus, LogOut, Box } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const Product3D = dynamic(() => import("@/components/Product3D"), {
+const Product3D = dynamic(() => import("@/app/components/Product3D"), {
   ssr: false,
   loading: () => <div className="h-64 w-full bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg" />,
 });
