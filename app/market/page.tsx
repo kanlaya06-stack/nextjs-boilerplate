@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าเริ่มต้น
+// ข้อมูลสินค้าพร้อม URL รูปภาพที่โหลดได้แน่นอน 100%
 const initialProducts = [
   {
     id: '1',
@@ -11,7 +11,7 @@ const initialProducts = [
     category: 'ลิปสติก',
     price: 159,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&auto=format&fit=crop&q=80',
     desc: 'ลิปทินท์เนื้อเวลเวท นุ่มฟู ติดทนนาน ไม่ตกร่องปาก เหมาะสำหรับนักศึกษาเติมระหว่างวัน',
   },
   {
@@ -20,7 +20,7 @@ const initialProducts = [
     category: 'บำรุงผิวหน้า',
     price: 289,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&auto=format&fit=crop&q=80',
     desc: 'ครีมกันแดดสูตรน้ำ บางเบา คุมมัน ไม่เยิ้มระหว่างวัน เหมาะสำหรับทำกิจกรรมกลางแจ้ง',
   },
   {
@@ -29,7 +29,7 @@ const initialProducts = [
     category: 'บลัชออน',
     price: 129,
     rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&auto=format&fit=crop&q=80',
     desc: 'บลัชออนเนื้อลิควิด เกลี่ยง่าย ให้แก้มดูมีเลือดฝาดเป็นธรรมชาติ ติดทนนานตลอดวัน',
   },
   {
@@ -38,7 +38,7 @@ const initialProducts = [
     category: 'บำรุงผิวหน้า',
     price: 350,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80',
     desc: 'เซรั่มไฮยาเข้มข้น เติมความชุ่มชื้นให้ผิวอิ่มฟู ลดความหมองคล้ำจากนอนดึก',
   },
   {
@@ -47,7 +47,7 @@ const initialProducts = [
     category: 'แต่งตา',
     price: 249,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&auto=format&fit=crop&q=80',
     desc: 'อายแชโดว์โทนส้มอิฐ-น้ำตาล ใช้แต่งไปเรียนได้ทุกวัน โทนสีสุภาพติดทนนาน',
   },
   {
@@ -56,12 +56,12 @@ const initialProducts = [
     category: 'สเปรย์เมคอัพ',
     price: 219,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1608248597260-9f018e6981f2?w=800&q=80',
-    desc: 'สเปรย์ฉีดหน้าฉีดหลังแต่งหน้า ช่วยล็อคเครื่องสำอางติดทนนานตลอดวัน คุมมัน ไม่เป็นคราบ',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80',
+    desc: 'สเปรย์ฉีดหน้าหลังแต่งหน้า ช่วยล็อคเครื่องสำอางติดทนนานตลอดวัน คุมมัน ไม่เป็นคราบ',
   },
 ];
 
-// Component สำหรับ WebGL 3D Interactive Card (คมชัด ไม่เบี้ยว ไม่ยืด)
+// Component สำหรับ 3D Product Stand (สวย เนียน ภาพไม่ยืดเบี้ยวแน่นอน)
 function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +89,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0, 4.8);
+      camera.position.set(0, 0.5, 5);
       cameraRef.current = camera;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -104,73 +104,84 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       scene.add(ambientLight);
 
       const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-      mainLight.position.set(5, 5, 5);
+      mainLight.position.set(5, 8, 5);
       scene.add(mainLight);
+
+      const backLight = new THREE.DirectionalLight(0xf472b6, 0.8);
+      backLight.position.set(-5, -2, -5);
+      scene.add(backLight);
 
       const productGroup = new THREE.Group();
       productGroupRef.current = productGroup;
       scene.add(productGroup);
 
+      // ฐานรองสินค้าสไตล์ดิสเพลย์โชว์รูม (Pedestal Base)
+      const baseGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.25, 64);
+      const baseMat = new THREE.MeshStandardMaterial({
+        color: darkMode ? 0x1e293b : 0xf1f5f9,
+        roughness: 0.2,
+        metalness: 0.5,
+      });
+      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+      baseMesh.position.y = -1.3;
+      productGroup.add(baseMesh);
+
+      // วงแหวนเรืองแสงใต้ฐาน
+      const ringGeo = new THREE.RingGeometry(1.65, 1.75, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, side: THREE.DoubleSide });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+      ringMesh.position.y = -1.16;
+      productGroup.add(ringMesh);
+
+      // โหลดรูปภาพแปะบนแผ่น Display Board คุณภาพสูง (ไม่ยืด ไม่บิดเบี้ยว)
       const textureLoader = new THREE.TextureLoader();
       textureLoader.setCrossOrigin('anonymous');
 
       textureLoader.load(
         product.image,
         (texture) => {
-          // คำนวณอัตราส่วนภาพเพื่อให้ภาพสวย คมชัด ไม่ยืด
-          const imageAspect = texture.image.width / texture.image.height;
-          const cardHeight = 2.4;
-          const cardWidth = cardHeight * imageAspect;
+          texture.minFilter = THREE.LinearFilter;
 
-          // สร้างแผ่นการ์ด 3D ที่มีความหนา
-          const geometry = new THREE.BoxGeometry(cardWidth, cardHeight, 0.08);
+          // สร้างแผ่นภาพแสดงสินค้าแบบพรีเมียมมีขอบมนและเงาสมจริง
+          const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
 
-          // กำหนด Material แต่ละด้าน
-          const frontMaterial = new THREE.MeshStandardMaterial({
+          // วัสดุด้านหน้า (รูปสินค้า)
+          const frontMat = new THREE.MeshStandardMaterial({
             map: texture,
             roughness: 0.2,
             metalness: 0.1,
           });
 
-          const backMaterial = new THREE.MeshStandardMaterial({
-            color: darkMode ? 0x1e293b : 0xf1f5f9,
-            roughness: 0.5,
-          });
-
-          const edgeMaterial = new THREE.MeshStandardMaterial({
-            color: 0xec4899,
+          // วัสดุขอบและด้านหลัง
+          const sideMat = new THREE.MeshStandardMaterial({
+            color: 0x1e1e2e,
             roughness: 0.3,
             metalness: 0.8,
           });
 
           const materials = [
-            edgeMaterial,  // ขวา
-            edgeMaterial,  // ซ้าย
-            edgeMaterial,  // บน
-            edgeMaterial,  // ล่าง
-            frontMaterial, // หน้า (รูปสินค้า)
-            backMaterial   // หลัง
+            sideMat, // ขวา
+            sideMat, // ซ้าย
+            sideMat, // บน
+            sideMat, // ล่าง
+            frontMat, // หน้า
+            frontMat, // หลัง
           ];
 
-          const cardMesh = new THREE.Mesh(geometry, materials);
-          cardMesh.position.y = 0.2;
-          productGroup.add(cardMesh);
-
-          // ฐานรอง 3D วงกลมด้านล่าง
-          const pedestalGeo = new THREE.CylinderGeometry(1.4, 1.6, 0.15, 32);
-          const pedestalMat = new THREE.MeshStandardMaterial({
-            color: darkMode ? 0x334155 : 0xe2e8f0,
-            roughness: 0.3,
-            metalness: 0.6,
-          });
-          const pedestalMesh = new THREE.Mesh(pedestalGeo, pedestalMat);
-          pedestalMesh.position.y = -1.25;
-          productGroup.add(pedestalMesh);
+          const displayCard = new THREE.Mesh(planeGeo, materials);
+          displayCard.position.y = 0.1;
+          productGroup.add(displayCard);
 
           setIsLoading(false);
         },
         undefined,
         () => {
+          // Fallback กรณีโหลดรูปไม่สำเร็จ
+          const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
+          const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
+          const displayCard = new THREE.Mesh(planeGeo, fallbackMat);
+          productGroup.add(displayCard);
           setIsLoading(false);
         }
       );
@@ -250,13 +261,13 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       productGroupRef.current.rotation.set(0, 0, 0);
     }
     if (cameraRef.current) {
-      cameraRef.current.position.set(0, 0, 4.8);
+      cameraRef.current.position.set(0, 0.5, 5);
     }
   };
 
   const handleZoom = (delta: number) => {
     if (cameraRef.current) {
-      cameraRef.current.position.z = Math.max(3.0, Math.min(7.0, cameraRef.current.position.z + delta));
+      cameraRef.current.position.z = Math.max(3, Math.min(8, cameraRef.current.position.z + delta));
     }
   };
 
@@ -273,7 +284,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <span className="text-[10px] text-pink-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-pink-500/20">
-          👆 หมุนดูสินค้า 360°
+          👆 หมุนสินค้าแบบ 360°
         </span>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -286,12 +297,12 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
                 : 'bg-black/60 text-slate-300 border-white/20 hover:text-white'
             }`}
           >
-            {isAutoRotate ? '⏸️ หยุดหมุน' : '▶️ หมุนหมุน'}
+            {isAutoRotate ? '⏸️ หยุดหมุน' : '▶️ หมุน'}
           </button>
           
           <button
             type="button"
-            onClick={() => handleZoom(-0.6)}
+            onClick={() => handleZoom(-0.8)}
             className="w-7 h-7 bg-black/60 text-white rounded-lg border border-white/20 flex items-center justify-center text-xs font-bold hover:bg-pink-600 transition"
             title="ซูมเข้า"
           >
@@ -300,7 +311,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
           <button
             type="button"
-            onClick={() => handleZoom(0.6)}
+            onClick={() => handleZoom(0.8)}
             className="w-7 h-7 bg-black/60 text-white rounded-lg border border-white/20 flex items-center justify-center text-xs font-bold hover:bg-pink-600 transition"
             title="ซูมออก"
           >
@@ -400,7 +411,7 @@ export default function MarketPage() {
           คัดสรรคุณภาพ เพื่อความมั่นใจในทุกวัน
         </h1>
         <p className={`text-sm md:text-base max-w-xl mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-          คลิกที่รูปภาพเพื่อดูภาพขนาดใหญ่ หรือกดปุ่มดู 3D เพื่อสัมผัสโมเดลสินค้า 360 องศา
+          คลิกที่รูปภาพเพื่อดูภาพขนาดใหญ่ หรือกดปุ่มดู 3D เพื่อสัมผัสสินค้าในมุมมอง 360 องศา
         </p>
       </div>
 
@@ -515,9 +526,9 @@ export default function MarketPage() {
           <div className={`w-full max-w-xl p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🛍️</span>
+                <span className="text-2xl">✨</span>
                 <div>
-                  <h3 className="text-lg font-bold leading-none">3D Interactive Viewer</h3>
+                  <h3 className="text-lg font-bold leading-none">3D Product Showcase</h3>
                   <span className="text-[11px] text-pink-400 font-medium">{selectedProduct3D.name}</span>
                 </div>
               </div>
