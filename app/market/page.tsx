@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าเริ่มต้น (แก้ไขรูปร่างแป้งพัฟให้ถูกต้องแล้ว)
+// ข้อมูลสินค้าเริ่มต้น (เปลี่ยนสินค้าชิ้นที่ 6 เป็น Setting Spray เรียบร้อยแล้ว)
 const initialProducts = [
   {
     id: '1',
@@ -52,12 +52,12 @@ const initialProducts = [
   },
   {
     id: '6',
-    name: 'แป้งพัฟผสมรองพื้น Matte Coverage Powder',
-    category: 'แป้งพัฟ',
-    price: 199,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=800&q=80',
-    desc: 'แป้งพัฟคุมมัน เบลอรูขุมขน ปกปิดเรียบเนียน ไม่เป็นคราบระหว่างวัน',
+    name: 'สเปรย์ล็อคเมคอัพ Matte Setting Spray',
+    category: 'สเปรย์เมคอัพ',
+    price: 219,
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1608248597261-e4d09447e4eb?w=800&q=80',
+    desc: 'สเปรย์ฉีดหน้าฉีดหลังแต่งหน้า ช่วยล็อคเครื่องสำอางติดทนนานตลอดวัน คุมมัน ไม่เป็นคราบ',
   },
 ];
 
@@ -351,7 +351,7 @@ export default function MarketPage() {
                     <option value="บำรุงผิวหน้า">บำรุงผิวหน้า</option>
                     <option value="บลัชออน">บลัชออน</option>
                     <option value="แต่งตา">แต่งตา</option>
-                    <option value="แป้งพัฟ">แป้งพัฟ</option>
+                    <option value="สเปรย์เมคอัพ">สเปรย์เมคอัพ</option>
                     <option value="อื่นๆ">อื่นๆ</option>
                   </select>
                 </div>
