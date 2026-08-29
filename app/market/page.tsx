@@ -61,8 +61,8 @@ const initialProducts = [
   },
 ];
 
-// Component 3D Viewer แบบเนียนพิเศษ (Smooth Studio Look)
-function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
+// Component สร้างโมเดลทรงขวด/ตลับเครื่องสำอาง 3D จริงๆ (Real 3D Cosmetic Bottle)
+function TrueCosmetic3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAutoRotate, setIsAutoRotate] = useState(true);
@@ -91,62 +91,54 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
 
       const scene = new THREE.Scene();
 
-      // Camera Config
-      const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
-      camera.position.set(0, 0.3, 5.5);
+      // Camera
+      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+      camera.position.set(0, 0.5, 5.2);
       cameraRef.current = camera;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(renderer.domElement);
 
-      // Studio Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+      // Lights Setup
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
       scene.add(ambientLight);
 
-      const topSpotLight = new THREE.SpotLight(0xfff5ea, 2.5);
-      topSpotLight.position.set(2, 6, 4);
-      topSpotLight.angle = Math.PI / 4;
-      topSpotLight.penumbra = 0.5;
-      scene.add(topSpotLight);
+      const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
+      mainLight.position.set(5, 8, 5);
+      scene.add(mainLight);
 
-      const rimLight = new THREE.DirectionalLight(0xf472b6, 1.2);
-      rimLight.position.set(-4, 3, -4);
-      scene.add(rimLight);
+      const backLight = new THREE.DirectionalLight(0xec4899, 1.0);
+      backLight.position.set(-5, -2, -4);
+      scene.add(backLight);
 
       const productGroup = new THREE.Group();
       productGroupRef.current = productGroup;
       scene.add(productGroup);
 
-      // ฐานโชว์สินค้าแบบพรีเมียม (Podium)
-      const baseGeo = new THREE.CylinderGeometry(1.5, 1.65, 0.2, 64);
+      // 1. ฐานโชว์สินค้าแบบดิสเพลย์ (Podium)
+      const baseGeo = new THREE.CylinderGeometry(1.4, 1.5, 0.2, 64);
       const baseMat = new THREE.MeshStandardMaterial({
-        color: darkMode ? 0x1e293b : 0xf8fafc,
+        color: darkMode ? 0x1e293b : 0xf1f5f9,
         roughness: 0.2,
-        metalness: 0.6,
+        metalness: 0.5,
       });
       const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-      baseMesh.position.y = -1.25;
+      baseMesh.position.y = -1.2;
       productGroup.add(baseMesh);
 
-      // วงแหวนทองแวววาวรอบฐาน
-      const ringGeo = new THREE.TorusGeometry(1.52, 0.02, 16, 100);
-      const ringMat = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        metalness: 0.9,
-        roughness: 0.1,
-      });
+      // วงแหวนทอง
+      const ringGeo = new THREE.TorusGeometry(1.42, 0.02, 16, 100);
+      const ringMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.1 });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.rotation.x = Math.PI / 2;
-      ringMesh.position.y = -1.15;
+      ringMesh.position.y = -1.1;
       productGroup.add(ringMesh);
 
-      // โหลดรูปสินค้าทำเป็นตัวกล่อง 3D ที่สมจริง
+      // 2. สร้างโครงสร้างขวด 3D (3D Cosmetic Bottle Geometry)
       const textureLoader = new THREE.TextureLoader();
       textureLoader.setCrossOrigin('anonymous');
 
@@ -154,39 +146,51 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
         product.image,
         (texture) => {
           texture.minFilter = THREE.LinearFilter;
-          texture.generateMipmaps = true;
 
-          // ทรงกล่องสมบูรณ์แบบขอบมนเล็กน้อย
-          const boxGeo = new THREE.BoxGeometry(1.8, 2.3, 0.22);
-
-          // หน้าหน้าและหลังใส่องค์ประกอบสินค้า
-          const frontFaceMat = new THREE.MeshStandardMaterial({
-            map: texture,
+          // --- ส่วนฝาขวด (Bottle Cap / Gold Metallic) ---
+          const capGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.6, 64);
+          const capMat = new THREE.MeshStandardMaterial({
+            color: 0xd4af37, // สีทอง Metallic
+            metalness: 0.9,
             roughness: 0.15,
+          });
+          const capMesh = new THREE.Mesh(capGeo, capMat);
+          capMesh.position.y = 1.0;
+          productGroup.add(capMesh);
+
+          // หัวกดสเปรย์/ปั๊มทอง
+          const pumpGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.2, 32);
+          const pumpMesh = new THREE.Mesh(pumpGeo, capMat);
+          pumpMesh.position.y = 1.35;
+          productGroup.add(pumpMesh);
+
+          // --- ส่วนตัวขวดแก้วทรงกระบอก (Glass Bottle) ---
+          const bottleGeo = new THREE.CylinderGeometry(0.8, 0.8, 1.8, 64);
+          
+          // วัสดุฉลากสินค้า (แปะรอบตัวขวด)
+          const labelMat = new THREE.MeshStandardMaterial({
+            map: texture,
+            roughness: 0.3,
             metalness: 0.1,
           });
 
-          // ขอบข้างลงสีโรสโกลด์เงางามเพิ่มความพรีเมียม
-          const sideMat = new THREE.MeshStandardMaterial({
-            color: 0x334155,
+          // วัสดุด้านบนและด้านล่างของขวด
+          const glassMat = new THREE.MeshStandardMaterial({
+            color: 0x0f172a,
+            roughness: 0.1,
             metalness: 0.8,
-            roughness: 0.2,
           });
 
-          const materials = [sideMat, sideMat, sideMat, sideMat, frontFaceMat, frontFaceMat];
-
-          const productCard = new THREE.Mesh(boxGeo, materials);
-          productCard.position.y = 0.1;
-          productGroup.add(productCard);
+          // รวมวัสดุขวด (ด้านข้างเป็นฉลากสินค้า / ด้านบนล่างเป็นวัสดุขวด)
+          const bottleMaterials = [labelMat, glassMat, glassMat];
+          const bottleMesh = new THREE.Mesh(bottleGeo, bottleMaterials);
+          bottleMesh.position.y = -0.1;
+          productGroup.add(bottleMesh);
 
           setIsLoading(false);
         },
         undefined,
         () => {
-          const boxGeo = new THREE.BoxGeometry(1.8, 2.3, 0.22);
-          const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
-          const productCard = new THREE.Mesh(boxGeo, fallbackMat);
-          productGroup.add(productCard);
           setIsLoading(false);
         }
       );
@@ -225,16 +229,15 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
       });
       window.addEventListener('touchend', handlePointerEnd);
 
-      // Loop การแสดงผลพร้อม Lerp / Damping เพิ่มความนุ่มนวล
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
 
         if (productGroup) {
           if (autoRotateRef.current && !isDragging) {
-            targetRotationY += 0.008;
+            targetRotationY += 0.012;
           }
 
-          // Smooth interpolation (หนืดนุ่มนวล)
+          // หนืดนุ่มนวล
           productGroup.rotation.y += (targetRotationY - productGroup.rotation.y) * 0.08;
           productGroup.rotation.x += (targetRotationX - productGroup.rotation.x) * 0.08;
         }
@@ -269,13 +272,13 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
       productGroupRef.current.rotation.set(0, 0, 0);
     }
     if (cameraRef.current) {
-      cameraRef.current.position.set(0, 0.3, 5.5);
+      cameraRef.current.position.set(0, 0.5, 5.2);
     }
   };
 
   const handleZoom = (delta: number) => {
     if (cameraRef.current) {
-      cameraRef.current.position.z = Math.max(3.5, Math.min(7.5, cameraRef.current.position.z + delta));
+      cameraRef.current.position.z = Math.max(3.2, Math.min(7.0, cameraRef.current.position.z + delta));
     }
   };
 
@@ -284,7 +287,7 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
       {isLoading && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 text-pink-400 gap-3">
           <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold">กำลังปรับระดับแสงและโมเดล 3D...</span>
+          <span className="text-xs font-semibold">กำลังขึ้นรูปโมเดลขวด 3D...</span>
         </div>
       )}
 
@@ -292,7 +295,7 @@ function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialPro
 
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <span className="text-[10px] text-pink-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-pink-500/20">
-          ✨ หมุนดูรอบทิศทาง 360°
+          🍾 หมุนขวด 3D แบบ 360°
         </span>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -529,7 +532,7 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* Modal ดูโมเดล 3D แบบเนียนๆ */}
+      {/* Modal ดูโมเดลขวด 3D แท้ */}
       {selectedProduct3D && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-xl p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -537,7 +540,7 @@ export default function MarketPage() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">✨</span>
                 <div>
-                  <h3 className="text-lg font-bold leading-none">3D Studio Product Showcase</h3>
+                  <h3 className="text-lg font-bold leading-none">3D Bottle Showcase</h3>
                   <span className="text-[11px] text-pink-400 font-medium">{selectedProduct3D.name}</span>
                 </div>
               </div>
@@ -550,7 +553,7 @@ export default function MarketPage() {
               </button>
             </div>
 
-            <UltraSmooth3DViewer product={selectedProduct3D} darkMode={darkMode} />
+            <TrueCosmetic3DViewer product={selectedProduct3D} darkMode={darkMode} />
 
             <div className="mt-5 flex justify-between items-center pt-2">
               <div>
