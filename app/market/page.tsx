@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าพร้อม URL รูปภาพที่โหลดได้แน่นอน 100%
+// ข้อมูลสินค้าที่อัปเดตรายการที่ 6 เป็น "แป้งฝุ่นคุมมัน Translucent Powder"
 const initialProducts = [
   {
     id: '1',
@@ -52,16 +52,16 @@ const initialProducts = [
   },
   {
     id: '6',
-    name: 'สเปรย์ล็อคเมคอัพ Matte Setting Spray',
-    category: 'สเปรย์เมคอัพ',
-    price: 219,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80',
-    desc: 'สเปรย์ฉีดหน้าหลังแต่งหน้า ช่วยล็อคเครื่องสำอางติดทนนานตลอดวัน คุมมัน ไม่เป็นคราบ',
+    name: 'แป้งฝุ่นคุมมัน Loose Translucent Powder',
+    category: 'แป้งแต่งหน้า',
+    price: 189,
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1503236823255-94609f598e71?w=800&auto=format&fit=crop&q=80',
+    desc: 'แป้งฝุ่นโปร่งแสงเนื้อละเอียด ช่วยเซ็ตเมคอัพคุมมันตลอดวัน หน้าไม่ดรอป ไม่เป็นคราบ',
   },
 ];
 
-// Component สำหรับ 3D Product Stand (สวย เนียน ภาพไม่ยืดเบี้ยวแน่นอน)
+// Component สำหรับ 3D Display (สวยงาม ไม่ยืด ไม่เบี้ยว)
 function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,7 +99,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(renderer.domElement);
 
-      // ไฟส่องสว่าง
       const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
       scene.add(ambientLight);
 
@@ -115,7 +114,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       productGroupRef.current = productGroup;
       scene.add(productGroup);
 
-      // ฐานรองสินค้าสไตล์ดิสเพลย์โชว์รูม (Pedestal Base)
+      // ฐานดิสเพลย์
       const baseGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.25, 64);
       const baseMat = new THREE.MeshStandardMaterial({
         color: darkMode ? 0x1e293b : 0xf1f5f9,
@@ -126,7 +125,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       baseMesh.position.y = -1.3;
       productGroup.add(baseMesh);
 
-      // วงแหวนเรืองแสงใต้ฐาน
+      // วงแหวนเรืองแสง
       const ringGeo = new THREE.RingGeometry(1.65, 1.75, 64);
       const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, side: THREE.DoubleSide });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -134,7 +133,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       ringMesh.position.y = -1.16;
       productGroup.add(ringMesh);
 
-      // โหลดรูปภาพแปะบนแผ่น Display Board คุณภาพสูง (ไม่ยืด ไม่บิดเบี้ยว)
       const textureLoader = new THREE.TextureLoader();
       textureLoader.setCrossOrigin('anonymous');
 
@@ -143,31 +141,21 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         (texture) => {
           texture.minFilter = THREE.LinearFilter;
 
-          // สร้างแผ่นภาพแสดงสินค้าแบบพรีเมียมมีขอบมนและเงาสมจริง
           const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
 
-          // วัสดุด้านหน้า (รูปสินค้า)
           const frontMat = new THREE.MeshStandardMaterial({
             map: texture,
             roughness: 0.2,
             metalness: 0.1,
           });
 
-          // วัสดุขอบและด้านหลัง
           const sideMat = new THREE.MeshStandardMaterial({
             color: 0x1e1e2e,
             roughness: 0.3,
             metalness: 0.8,
           });
 
-          const materials = [
-            sideMat, // ขวา
-            sideMat, // ซ้าย
-            sideMat, // บน
-            sideMat, // ล่าง
-            frontMat, // หน้า
-            frontMat, // หลัง
-          ];
+          const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, frontMat];
 
           const displayCard = new THREE.Mesh(planeGeo, materials);
           displayCard.position.y = 0.1;
@@ -177,7 +165,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         },
         undefined,
         () => {
-          // Fallback กรณีโหลดรูปไม่สำเร็จ
           const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
           const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
           const displayCard = new THREE.Mesh(planeGeo, fallbackMat);
@@ -601,7 +588,7 @@ export default function MarketPage() {
                     <option value="บำรุงผิวหน้า">บำรุงผิวหน้า</option>
                     <option value="บลัชออน">บลัชออน</option>
                     <option value="แต่งตา">แต่งตา</option>
-                    <option value="สเปรย์เมคอัพ">สเปรย์เมคอัพ</option>
+                    <option value="แป้งแต่งหน้า">แป้งแต่งหน้า</option>
                     <option value="อื่นๆ">อื่นๆ</option>
                   </select>
                 </div>
