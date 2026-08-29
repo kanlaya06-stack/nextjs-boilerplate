@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าเริ่มต้น (อัปเดตรูปสเปรย์ล็อคเมคอัพจริง)
+// ข้อมูลสินค้าเริ่มต้น
 const initialProducts = [
   {
     id: '1',
@@ -61,7 +61,7 @@ const initialProducts = [
   },
 ];
 
-// Component สำหรับ WebGL 3D Real Viewer (สร้างเป็นทรงขวดเนียนตาขึ้น)
+// Component สำหรับ WebGL 3D Interactive Card (คมชัด ไม่เบี้ยว ไม่ยืด)
 function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +89,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0, 5.5);
+      camera.position.set(0, 0, 4.8);
       cameraRef.current = camera;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -100,16 +100,12 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       containerRef.current.appendChild(renderer.domElement);
 
       // ไฟส่องสว่าง
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
       scene.add(ambientLight);
 
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
-      mainLight.position.set(5, 8, 5);
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      mainLight.position.set(5, 5, 5);
       scene.add(mainLight);
-
-      const backLight = new THREE.DirectionalLight(0xffb6c1, 0.8);
-      backLight.position.set(-5, -2, -5);
-      scene.add(backLight);
 
       const productGroup = new THREE.Group();
       productGroupRef.current = productGroup;
@@ -121,55 +117,60 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       textureLoader.load(
         product.image,
         (texture) => {
-          texture.wrapS = THREE.ClampToEdgeWrapping;
-          texture.wrapT = THREE.ClampToEdgeWrapping;
+          // คำนวณอัตราส่วนภาพเพื่อให้ภาพสวย คมชัด ไม่ยืด
+          const imageAspect = texture.image.width / texture.image.height;
+          const cardHeight = 2.4;
+          const cardWidth = cardHeight * imageAspect;
 
-          // 1. สร้างตัวขวดทรงกระบอก (Bottle Body)
-          const bottleRadius = 0.8;
-          const bottleHeight = 2.2;
-          const bottleGeo = new THREE.CylinderGeometry(bottleRadius, bottleRadius, bottleHeight, 64);
-          
-          const labelMaterial = new THREE.MeshStandardMaterial({
+          // สร้างแผ่นการ์ด 3D ที่มีความหนา
+          const geometry = new THREE.BoxGeometry(cardWidth, cardHeight, 0.08);
+
+          // กำหนด Material แต่ละด้าน
+          const frontMaterial = new THREE.MeshStandardMaterial({
             map: texture,
-            roughness: 0.3,
+            roughness: 0.2,
             metalness: 0.1,
           });
 
-          const bottleMesh = new THREE.Mesh(bottleGeo, labelMaterial);
-          bottleMesh.position.y = 0.1;
-          productGroup.add(bottleMesh);
+          const backMaterial = new THREE.MeshStandardMaterial({
+            color: darkMode ? 0x1e293b : 0xf1f5f9,
+            roughness: 0.5,
+          });
 
-          // 2. ฝาขวด / หัวปั๊ม (Cap/Pump)
-          const capGeo = new THREE.CylinderGeometry(0.35, 0.45, 0.7, 32);
-          const capMat = new THREE.MeshStandardMaterial({
-            color: 0x222222,
-            roughness: 0.2,
+          const edgeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xec4899,
+            roughness: 0.3,
             metalness: 0.8,
           });
-          const capMesh = new THREE.Mesh(capGeo, capMat);
-          capMesh.position.y = 1.5;
-          productGroup.add(capMesh);
 
-          // 3. ฐานรองสินค้า (Pedestal)
-          const baseMaterial = new THREE.MeshStandardMaterial({
-            color: darkMode ? 0x1e293b : 0xe2e8f0,
-            roughness: 0.2,
-            metalness: 0.5,
+          const materials = [
+            edgeMaterial,  // ขวา
+            edgeMaterial,  // ซ้าย
+            edgeMaterial,  // บน
+            edgeMaterial,  // ล่าง
+            frontMaterial, // หน้า (รูปสินค้า)
+            backMaterial   // หลัง
+          ];
+
+          const cardMesh = new THREE.Mesh(geometry, materials);
+          cardMesh.position.y = 0.2;
+          productGroup.add(cardMesh);
+
+          // ฐานรอง 3D วงกลมด้านล่าง
+          const pedestalGeo = new THREE.CylinderGeometry(1.4, 1.6, 0.15, 32);
+          const pedestalMat = new THREE.MeshStandardMaterial({
+            color: darkMode ? 0x334155 : 0xe2e8f0,
+            roughness: 0.3,
+            metalness: 0.6,
           });
-          const pedestalGeo = new THREE.CylinderGeometry(1.5, 1.7, 0.2, 32);
-          const pedestalMesh = new THREE.Mesh(pedestalGeo, baseMaterial);
-          pedestalMesh.position.y = -1.1;
+          const pedestalMesh = new THREE.Mesh(pedestalGeo, pedestalMat);
+          pedestalMesh.position.y = -1.25;
           productGroup.add(pedestalMesh);
 
           setIsLoading(false);
         },
         undefined,
         () => {
-          // Fallback ถ้าโหลดรูปไม่ได้
-          const bottleGeo = new THREE.CylinderGeometry(0.8, 0.8, 2.2, 32);
-          const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.3 });
-          const mesh = new THREE.Mesh(bottleGeo, fallbackMat);
-          productGroup.add(mesh);
           setIsLoading(false);
         }
       );
@@ -216,7 +217,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         animationFrameId = requestAnimationFrame(animate);
 
         if (autoRotateRef.current && !isDragging && productGroup) {
-          productGroup.rotation.y += 0.01;
+          productGroup.rotation.y += 0.012;
         }
 
         renderer.render(scene, camera);
@@ -249,13 +250,13 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       productGroupRef.current.rotation.set(0, 0, 0);
     }
     if (cameraRef.current) {
-      cameraRef.current.position.set(0, 0, 5.5);
+      cameraRef.current.position.set(0, 0, 4.8);
     }
   };
 
   const handleZoom = (delta: number) => {
     if (cameraRef.current) {
-      cameraRef.current.position.z = Math.max(3.5, Math.min(8, cameraRef.current.position.z + delta));
+      cameraRef.current.position.z = Math.max(3.0, Math.min(7.0, cameraRef.current.position.z + delta));
     }
   };
 
@@ -264,7 +265,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       {isLoading && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 text-pink-400 gap-3">
           <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold">กำลังสร้างขวด 3D...</span>
+          <span className="text-xs font-semibold">กำลังโหลดโมเดล 3D...</span>
         </div>
       )}
 
@@ -272,7 +273,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <span className="text-[10px] text-pink-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-pink-500/20">
-          👆 หมุนดูรอบขวดแบบ 360°
+          👆 หมุนดูสินค้า 360°
         </span>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -290,7 +291,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
           
           <button
             type="button"
-            onClick={() => handleZoom(-0.8)}
+            onClick={() => handleZoom(-0.6)}
             className="w-7 h-7 bg-black/60 text-white rounded-lg border border-white/20 flex items-center justify-center text-xs font-bold hover:bg-pink-600 transition"
             title="ซูมเข้า"
           >
@@ -299,7 +300,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
           <button
             type="button"
-            onClick={() => handleZoom(0.8)}
+            onClick={() => handleZoom(0.6)}
             className="w-7 h-7 bg-black/60 text-white rounded-lg border border-white/20 flex items-center justify-center text-xs font-bold hover:bg-pink-600 transition"
             title="ซูมออก"
           >
@@ -399,7 +400,7 @@ export default function MarketPage() {
           คัดสรรคุณภาพ เพื่อความมั่นใจในทุกวัน
         </h1>
         <p className={`text-sm md:text-base max-w-xl mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-          คลิกที่รูปภาพเพื่อดูภาพขนาดใหญ่ หรือกดปุ่มดู 3D เพื่อสัมผัสโมเดลขวดสินค้า 360 องศา
+          คลิกที่รูปภาพเพื่อดูภาพขนาดใหญ่ หรือกดปุ่มดู 3D เพื่อสัมผัสโมเดลสินค้า 360 องศา
         </p>
       </div>
 
@@ -443,7 +444,7 @@ export default function MarketPage() {
                   }}
                   className="absolute bottom-3 right-3 px-3.5 py-2 rounded-xl text-xs font-bold bg-black/80 text-white backdrop-blur-md border border-white/20 hover:bg-pink-600 hover:border-pink-500 transition-all flex items-center gap-1.5 shadow-xl cursor-pointer active:scale-95 z-10"
                 >
-                  🧊 ดูขวด 3D
+                  🧊 ดูสินค้า 3D
                 </button>
               </div>
 
@@ -514,9 +515,9 @@ export default function MarketPage() {
           <div className={`w-full max-w-xl p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🍾</span>
+                <span className="text-2xl">🛍️</span>
                 <div>
-                  <h3 className="text-lg font-bold leading-none">3D Bottle Viewer</h3>
+                  <h3 className="text-lg font-bold leading-none">3D Interactive Viewer</h3>
                   <span className="text-[11px] text-pink-400 font-medium">{selectedProduct3D.name}</span>
                 </div>
               </div>
