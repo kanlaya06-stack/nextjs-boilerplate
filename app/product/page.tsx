@@ -73,7 +73,7 @@ export default function AddProductPage() {
               </div>
             </div>
 
-            <button type="submit" className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <button type="submit" className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all cursor-pointer">
               บันทึกและลงขาย
             </button>
           </form>
