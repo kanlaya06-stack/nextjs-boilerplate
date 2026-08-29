@@ -66,7 +66,6 @@ export default function MarketPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-      
       {/* Navigation Bar */}
       <nav className={`flex items-center justify-between px-8 py-4 border-b ${darkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-white/90'} backdrop-blur-md sticky top-0 z-40`}>
         <div className="flex items-center gap-3">
@@ -81,7 +80,6 @@ export default function MarketPage() {
             ← กลับหน้าแรก
           </Link>
 
-          {/* ปุ่มสลับโหมดมืด / โหมดสว่าง */}
           <button
             onClick={() => setDarkMode(!darkMode)}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold border flex items-center gap-2 transition transform active:scale-95 ${
@@ -131,10 +129,10 @@ export default function MarketPage() {
                   {item.category}
                 </span>
 
-                {/* ปุ่มดู 3D บนรูปภาพ */}
                 <button
+                  type="button"
                   onClick={() => setSelectedProduct3D(item)}
-                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-black/70 text-white backdrop-blur-md border border-white/20 hover:bg-pink-600 transition flex items-center gap-1.5 shadow-lg"
+                  className="absolute bottom-3 right-3 px-3.5 py-2 rounded-xl text-xs font-bold bg-black/80 text-white backdrop-blur-md border border-white/20 hover:bg-pink-600 hover:border-pink-500 transition-all flex items-center gap-1.5 shadow-xl cursor-pointer active:scale-95"
                 >
                   🧊 ดู 3D
                 </button>
@@ -160,12 +158,13 @@ export default function MarketPage() {
                     <span className="text-xl font-extrabold text-pink-500">฿{item.price}</span>
                   </div>
 
-                  <Link
-                    href={`/market/product/${item.id}`}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProduct3D(item)}
                     className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20 hover:opacity-90 transition transform active:scale-95"
                   >
                     ดูรายละเอียดสินค้า
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -173,45 +172,46 @@ export default function MarketPage() {
         </div>
       </main>
 
-      {/* 3D Product View Modal */}
+      {/* Fixed Modal Center Display */}
       {selectedProduct3D && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className={`w-full max-w-xl p-6 rounded-2xl border shadow-2xl transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-xl">🧊</span>
+                <span className="text-2xl">🧊</span>
                 <h3 className="text-lg font-bold">3D Preview: {selectedProduct3D.name}</h3>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedProduct3D(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-500/20 transition text-slate-400 hover:text-white"
+                className="w-9 h-9 rounded-full bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition font-bold"
               >
                 ✕
               </button>
             </div>
 
-            {/* 3D Model Display Box */}
-            <div className="h-72 rounded-2xl bg-gradient-to-b from-slate-950 to-slate-900 border border-pink-500/30 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div className="w-32 h-32 border-4 border-pink-500/80 rounded-3xl animate-spin-slow flex items-center justify-center shadow-xl shadow-pink-500/40 bg-pink-500/10">
+            <div className="h-72 rounded-2xl bg-slate-950 border border-pink-500/30 flex flex-col items-center justify-center relative overflow-hidden p-6">
+              <div className="w-36 h-36 border-4 border-pink-500 rounded-full animate-spin-slow flex items-center justify-center shadow-2xl shadow-pink-500/50 bg-pink-500/10">
                 <img
                   src={selectedProduct3D.image}
                   alt="3D Preview"
-                  className="w-24 h-24 object-cover rounded-xl shadow-md"
+                  className="w-24 h-24 object-cover rounded-full shadow-lg"
                 />
               </div>
-              <p className="mt-6 text-xs text-pink-300 font-medium">
-                👆 หมุนและสำรวจสินค้าแบบ 3D Interactive (360° View)
+              <p className="mt-6 text-xs text-pink-400 font-medium tracking-wide">
+                ✨ แสดงตัวอย่างสินค้าแบบ 3D Interactive (360° View)
               </p>
             </div>
 
-            <div className="mt-6 flex justify-between items-center">
+            <div className="mt-6 flex justify-between items-center pt-2">
               <div>
                 <span className="text-xs text-slate-400 block">ราคา</span>
-                <span className="text-lg font-bold text-pink-500">฿{selectedProduct3D.price}</span>
+                <span className="text-xl font-extrabold text-pink-500">฿{selectedProduct3D.price}</span>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedProduct3D(null)}
-                className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-pink-600 hover:bg-pink-500 text-white transition shadow-md shadow-pink-600/30"
+                className="px-6 py-2.5 rounded-xl text-xs font-bold bg-pink-600 hover:bg-pink-500 text-white transition shadow-lg shadow-pink-600/30 active:scale-95"
               >
                 ปิดหน้าต่าง
               </button>
