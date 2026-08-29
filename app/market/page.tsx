@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าที่อัปเดตรายการที่ 6 เป็น "แป้งฝุ่นคุมมัน Translucent Powder"
+// ข้อมูลสินค้า
 const initialProducts = [
   {
     id: '1',
@@ -61,8 +61,8 @@ const initialProducts = [
   },
 ];
 
-// Component สำหรับ 3D Display (สวยงาม ไม่ยืด ไม่เบี้ยว)
-function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
+// Component 3D Viewer แบบเนียนพิเศษ (Smooth Studio Look)
+function UltraSmooth3DViewer({ product, darkMode }: { product: typeof initialProducts[0]; darkMode: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAutoRotate, setIsAutoRotate] = useState(true);
@@ -76,6 +76,8 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
     let animationFrameId: number;
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
+    let targetRotationX = 0;
+    let targetRotationY = 0;
 
     const scriptId = 'three-js-cdn';
     let script = document.getElementById(scriptId) as HTMLScriptElement;
@@ -88,51 +90,63 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       const height = containerRef.current.clientHeight;
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0.5, 5);
+
+      // Camera Config
+      const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
+      camera.position.set(0, 0.3, 5.5);
       cameraRef.current = camera;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(renderer.domElement);
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+      // Studio Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
       scene.add(ambientLight);
 
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-      mainLight.position.set(5, 8, 5);
-      scene.add(mainLight);
+      const topSpotLight = new THREE.SpotLight(0xfff5ea, 2.5);
+      topSpotLight.position.set(2, 6, 4);
+      topSpotLight.angle = Math.PI / 4;
+      topSpotLight.penumbra = 0.5;
+      scene.add(topSpotLight);
 
-      const backLight = new THREE.DirectionalLight(0xf472b6, 0.8);
-      backLight.position.set(-5, -2, -5);
-      scene.add(backLight);
+      const rimLight = new THREE.DirectionalLight(0xf472b6, 1.2);
+      rimLight.position.set(-4, 3, -4);
+      scene.add(rimLight);
 
       const productGroup = new THREE.Group();
       productGroupRef.current = productGroup;
       scene.add(productGroup);
 
-      // ฐานดิสเพลย์
-      const baseGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.25, 64);
+      // ฐานโชว์สินค้าแบบพรีเมียม (Podium)
+      const baseGeo = new THREE.CylinderGeometry(1.5, 1.65, 0.2, 64);
       const baseMat = new THREE.MeshStandardMaterial({
-        color: darkMode ? 0x1e293b : 0xf1f5f9,
+        color: darkMode ? 0x1e293b : 0xf8fafc,
         roughness: 0.2,
-        metalness: 0.5,
+        metalness: 0.6,
       });
       const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-      baseMesh.position.y = -1.3;
+      baseMesh.position.y = -1.25;
       productGroup.add(baseMesh);
 
-      // วงแหวนเรืองแสง
-      const ringGeo = new THREE.RingGeometry(1.65, 1.75, 64);
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, side: THREE.DoubleSide });
+      // วงแหวนทองแวววาวรอบฐาน
+      const ringGeo = new THREE.TorusGeometry(1.52, 0.02, 16, 100);
+      const ringMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        metalness: 0.9,
+        roughness: 0.1,
+      });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.rotation.x = Math.PI / 2;
-      ringMesh.position.y = -1.16;
+      ringMesh.position.y = -1.15;
       productGroup.add(ringMesh);
 
+      // โหลดรูปสินค้าทำเป็นตัวกล่อง 3D ที่สมจริง
       const textureLoader = new THREE.TextureLoader();
       textureLoader.setCrossOrigin('anonymous');
 
@@ -140,35 +154,39 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         product.image,
         (texture) => {
           texture.minFilter = THREE.LinearFilter;
+          texture.generateMipmaps = true;
 
-          const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
+          // ทรงกล่องสมบูรณ์แบบขอบมนเล็กน้อย
+          const boxGeo = new THREE.BoxGeometry(1.8, 2.3, 0.22);
 
-          const frontMat = new THREE.MeshStandardMaterial({
+          // หน้าหน้าและหลังใส่องค์ประกอบสินค้า
+          const frontFaceMat = new THREE.MeshStandardMaterial({
             map: texture,
-            roughness: 0.2,
+            roughness: 0.15,
             metalness: 0.1,
           });
 
+          // ขอบข้างลงสีโรสโกลด์เงางามเพิ่มความพรีเมียม
           const sideMat = new THREE.MeshStandardMaterial({
-            color: 0x1e1e2e,
-            roughness: 0.3,
+            color: 0x334155,
             metalness: 0.8,
+            roughness: 0.2,
           });
 
-          const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, frontMat];
+          const materials = [sideMat, sideMat, sideMat, sideMat, frontFaceMat, frontFaceMat];
 
-          const displayCard = new THREE.Mesh(planeGeo, materials);
-          displayCard.position.y = 0.1;
-          productGroup.add(displayCard);
+          const productCard = new THREE.Mesh(boxGeo, materials);
+          productCard.position.y = 0.1;
+          productGroup.add(productCard);
 
           setIsLoading(false);
         },
         undefined,
         () => {
-          const planeGeo = new THREE.BoxGeometry(2.0, 2.5, 0.08);
+          const boxGeo = new THREE.BoxGeometry(1.8, 2.3, 0.22);
           const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
-          const displayCard = new THREE.Mesh(planeGeo, fallbackMat);
-          productGroup.add(displayCard);
+          const productCard = new THREE.Mesh(boxGeo, fallbackMat);
+          productGroup.add(productCard);
           setIsLoading(false);
         }
       );
@@ -181,12 +199,12 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       };
 
       const handlePointerMove = (x: number, y: number) => {
-        if (!isDragging || !productGroup) return;
+        if (!isDragging) return;
         const deltaX = x - previousMousePosition.x;
         const deltaY = y - previousMousePosition.y;
 
-        productGroup.rotation.y += deltaX * 0.01;
-        productGroup.rotation.x += deltaY * 0.01;
+        targetRotationY += deltaX * 0.008;
+        targetRotationX += deltaY * 0.008;
 
         previousMousePosition = { x, y };
       };
@@ -200,22 +218,25 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       window.addEventListener('mouseup', handlePointerEnd);
 
       domElem.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-          handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
-        }
+        if (e.touches.length === 1) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
       });
       window.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1) {
-          handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-        }
+        if (e.touches.length === 1) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
       });
       window.addEventListener('touchend', handlePointerEnd);
 
+      // Loop การแสดงผลพร้อม Lerp / Damping เพิ่มความนุ่มนวล
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
 
-        if (autoRotateRef.current && !isDragging && productGroup) {
-          productGroup.rotation.y += 0.012;
+        if (productGroup) {
+          if (autoRotateRef.current && !isDragging) {
+            targetRotationY += 0.008;
+          }
+
+          // Smooth interpolation (หนืดนุ่มนวล)
+          productGroup.rotation.y += (targetRotationY - productGroup.rotation.y) * 0.08;
+          productGroup.rotation.x += (targetRotationX - productGroup.rotation.x) * 0.08;
         }
 
         renderer.render(scene, camera);
@@ -248,22 +269,22 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       productGroupRef.current.rotation.set(0, 0, 0);
     }
     if (cameraRef.current) {
-      cameraRef.current.position.set(0, 0.5, 5);
+      cameraRef.current.position.set(0, 0.3, 5.5);
     }
   };
 
   const handleZoom = (delta: number) => {
     if (cameraRef.current) {
-      cameraRef.current.position.z = Math.max(3, Math.min(8, cameraRef.current.position.z + delta));
+      cameraRef.current.position.z = Math.max(3.5, Math.min(7.5, cameraRef.current.position.z + delta));
     }
   };
 
   return (
-    <div className="relative w-full h-80 rounded-2xl bg-slate-950/80 border border-pink-500/30 overflow-hidden flex items-center justify-center">
+    <div className="relative w-full h-80 rounded-2xl bg-slate-950/90 border border-pink-500/30 overflow-hidden flex items-center justify-center">
       {isLoading && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 text-pink-400 gap-3">
           <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold">กำลังโหลดโมเดล 3D...</span>
+          <span className="text-xs font-semibold">กำลังปรับระดับแสงและโมเดล 3D...</span>
         </div>
       )}
 
@@ -271,7 +292,7 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
 
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <span className="text-[10px] text-pink-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-pink-500/20">
-          👆 หมุนสินค้าแบบ 360°
+          ✨ หมุนดูรอบทิศทาง 360°
         </span>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -336,7 +357,7 @@ export default function MarketPage() {
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newPrice || !newImage) {
-      alert('กรุณากรอกชื่อสินค้า ราคา และลิงก์รูปภาพให้ครบถ้วนครับ');
+      alert('กรุณากรอกข้อมูลสินค้าให้ครบถ้วนครับ');
       return;
     }
 
@@ -351,7 +372,6 @@ export default function MarketPage() {
     };
 
     setProducts([newEntry, ...products]);
-
     setNewName('');
     setNewPrice('');
     setNewImage('');
@@ -479,6 +499,7 @@ export default function MarketPage() {
         </div>
       </main>
 
+      {/* Modal ดูรูปขยายใหญ่ */}
       {fullImageProduct && (
         <div 
           className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
@@ -508,6 +529,7 @@ export default function MarketPage() {
         </div>
       )}
 
+      {/* Modal ดูโมเดล 3D แบบเนียนๆ */}
       {selectedProduct3D && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-xl p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -515,7 +537,7 @@ export default function MarketPage() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">✨</span>
                 <div>
-                  <h3 className="text-lg font-bold leading-none">3D Product Showcase</h3>
+                  <h3 className="text-lg font-bold leading-none">3D Studio Product Showcase</h3>
                   <span className="text-[11px] text-pink-400 font-medium">{selectedProduct3D.name}</span>
                 </div>
               </div>
@@ -528,7 +550,7 @@ export default function MarketPage() {
               </button>
             </div>
 
-            <Real3DViewer product={selectedProduct3D} darkMode={darkMode} />
+            <UltraSmooth3DViewer product={selectedProduct3D} darkMode={darkMode} />
 
             <div className="mt-5 flex justify-between items-center pt-2">
               <div>
@@ -547,6 +569,7 @@ export default function MarketPage() {
         </div>
       )}
 
+      {/* Modal ฟอร์มเพิ่มสินค้า */}
       {showAddForm && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-md p-6 rounded-3xl border shadow-2xl transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
