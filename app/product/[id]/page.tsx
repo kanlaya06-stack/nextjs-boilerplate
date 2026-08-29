@@ -101,8 +101,6 @@ export default function ProductDetailPage() {
         </Link>
 
         <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          
-          {/* ฝั่งแสดงผลภาพ/3D */}
           <div className="h-80 bg-slate-50 rounded-2xl relative overflow-hidden border border-slate-100 flex items-center justify-center">
             <button
               onClick={() => setIs3DView(!is3DView)}
@@ -120,7 +118,6 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* ฝั่งรายละเอียดสินค้า */}
           <div className="space-y-6">
             <div>
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
