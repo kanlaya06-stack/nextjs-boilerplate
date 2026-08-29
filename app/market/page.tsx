@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าเริ่มต้น
+// ข้อมูลสินค้าเริ่มต้น (แก้ไขรูปสเปรย์ล็อคเมคอัพเรียบร้อยแล้ว)
 const initialProducts = [
   {
     id: '1',
@@ -56,7 +56,7 @@ const initialProducts = [
     category: 'สเปรย์เมคอัพ',
     price: 219,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1608248597261-e4d09447e4eb?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=80',
     desc: 'สเปรย์ฉีดหน้าฉีดหลังแต่งหน้า ช่วยล็อคเครื่องสำอางติดทนนานตลอดวัน คุมมัน ไม่เป็นคราบ',
   },
 ];
@@ -87,15 +87,11 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       const width = containerRef.current.clientWidth;
       const height = containerRef.current.clientHeight;
 
-      // 1. Scene
       const scene = new THREE.Scene();
-
-      // 2. Camera
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
       camera.position.set(0, 0, 5);
       cameraRef.current = camera;
 
-      // 3. Renderer
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -103,7 +99,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(renderer.domElement);
 
-      // 4. Lights (Studio Lighting Setup)
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
       scene.add(ambientLight);
 
@@ -115,40 +110,34 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       fillLight.position.set(-5, -2, -2);
       scene.add(fillLight);
 
-      // 5. Product 3D Group
       const productGroup = new THREE.Group();
       productGroupRef.current = productGroup;
       scene.add(productGroup);
 
-      // Load Product Texture
       const textureLoader = new THREE.TextureLoader();
       textureLoader.setCrossOrigin('anonymous');
 
       textureLoader.load(
         product.image,
         (texture) => {
-          // Front Material
           const frontMaterial = new THREE.MeshStandardMaterial({
             map: texture,
             roughness: 0.2,
             metalness: 0.1,
           });
 
-          // Metallic Side Frame Material (Rose Gold / Pink Alloy)
           const sideMaterial = new THREE.MeshStandardMaterial({
             color: 0xec4899,
             roughness: 0.25,
             metalness: 0.85,
           });
 
-          // Pedestal Base Material
           const baseMaterial = new THREE.MeshStandardMaterial({
             color: darkMode ? 0x1e293b : 0xe2e8f0,
             roughness: 0.3,
             metalness: 0.5,
           });
 
-          // Create 3D Package Box
           const boxGeometry = new THREE.BoxGeometry(1.8, 2.4, 0.4);
           const materials = [
             sideMaterial,  // Right
@@ -163,7 +152,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
           boxMesh.position.y = 0.2;
           productGroup.add(boxMesh);
 
-          // Create 3D Display Pedestal / Base
           const pedestalGeo = new THREE.CylinderGeometry(1.4, 1.6, 0.2, 32);
           const pedestalMesh = new THREE.Mesh(pedestalGeo, baseMaterial);
           pedestalMesh.position.y = -1.2;
@@ -173,7 +161,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         },
         undefined,
         () => {
-          // Fallback if image CORS fails
           const fallbackGeo = new THREE.BoxGeometry(1.8, 2.4, 0.4);
           const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.3 });
           const mesh = new THREE.Mesh(fallbackGeo, fallbackMat);
@@ -182,7 +169,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         }
       );
 
-      // Mouse Drag Interaction for 3D Rotation
       const domElem = renderer.domElement;
 
       const handlePointerDown = (x: number, y: number) => {
@@ -205,12 +191,10 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         isDragging = false;
       };
 
-      // Mouse Events
       domElem.addEventListener('mousedown', (e) => handlePointerDown(e.clientX, e.clientY));
       window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
       window.addEventListener('mouseup', handlePointerEnd);
 
-      // Touch Events
       domElem.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
@@ -223,7 +207,6 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
       });
       window.addEventListener('touchend', handlePointerEnd);
 
-      // Render Loop
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
 
@@ -280,10 +263,8 @@ function Real3DViewer({ product, darkMode }: { product: typeof initialProducts[0
         </div>
       )}
 
-      {/* 3D Canvas Container */}
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* Controls Overlay */}
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <span className="text-[10px] text-pink-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-pink-500/20">
           👆 คลิก/ลาก เพื่อหมุน 3D
@@ -337,12 +318,10 @@ export default function MarketPage() {
   const [products, setProducts] = useState(initialProducts);
   const [darkMode, setDarkMode] = useState(true);
 
-  // States สำหรับ Modal
   const [selectedProduct3D, setSelectedProduct3D] = useState<typeof initialProducts[0] | null>(null);
   const [fullImageProduct, setFullImageProduct] = useState<typeof initialProducts[0] | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // States สำหรับฟอร์มลงสินค้าใหม่
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('ลิปสติก');
   const [newPrice, setNewPrice] = useState('');
@@ -350,7 +329,6 @@ export default function MarketPage() {
   const [newImage, setNewImage] = useState('');
   const [newDesc, setNewDesc] = useState('');
 
-  // ฟังก์ชันเพิ่มสินค้า
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newPrice || !newImage) {
@@ -370,7 +348,6 @@ export default function MarketPage() {
 
     setProducts([newEntry, ...products]);
 
-    // รีเซ็ตฟอร์ม
     setNewName('');
     setNewPrice('');
     setNewImage('');
@@ -380,7 +357,6 @@ export default function MarketPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-      {/* Navigation Bar */}
       <nav className={`flex items-center justify-between px-6 md:px-8 py-4 border-b ${darkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-white/90'} backdrop-blur-md sticky top-0 z-40`}>
         <div className="flex items-center gap-3">
           <Link href="/" className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold text-xl hover:scale-105 transition">
@@ -410,7 +386,6 @@ export default function MarketPage() {
         </div>
       </nav>
 
-      {/* Header Banner */}
       <div className="max-w-7xl mx-auto px-6 pt-10 pb-6 text-center">
         <span className="px-4 py-1.5 rounded-full text-xs font-semibold bg-pink-500/10 text-pink-400 border border-pink-500/20 inline-block mb-4">
           ✨ ศูนย์รวมเครื่องสำอางและสกินแคร์ราคานักศึกษา
@@ -423,7 +398,6 @@ export default function MarketPage() {
         </p>
       </div>
 
-      {/* Product Grid */}
       <main className="max-w-7xl mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((item) => (
@@ -435,7 +409,6 @@ export default function MarketPage() {
                   : 'bg-white border-slate-200 hover:border-pink-300 hover:shadow-slate-300/50'
               }`}
             >
-              {/* Product Image Container */}
               <div 
                 onClick={() => setFullImageProduct(item)}
                 className="relative h-60 w-full overflow-hidden bg-slate-800 group cursor-pointer"
@@ -469,7 +442,6 @@ export default function MarketPage() {
                 </button>
               </div>
 
-              {/* Product Content */}
               <div className="p-6 flex flex-col flex-1 justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -503,7 +475,6 @@ export default function MarketPage() {
         </div>
       </main>
 
-      {/* Fullscreen Image Lightbox Modal */}
       {fullImageProduct && (
         <div 
           className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
@@ -533,7 +504,6 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* Real 3D Interactive Modal */}
       {selectedProduct3D && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-xl p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -554,7 +524,6 @@ export default function MarketPage() {
               </button>
             </div>
 
-            {/* Real WebGL 3D Canvas View */}
             <Real3DViewer product={selectedProduct3D} darkMode={darkMode} />
 
             <div className="mt-5 flex justify-between items-center pt-2">
@@ -574,7 +543,6 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* Form Modal สำหรับเพิ่มสินค้าใหม่ */}
       {showAddForm && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-md p-6 rounded-3xl border shadow-2xl transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
