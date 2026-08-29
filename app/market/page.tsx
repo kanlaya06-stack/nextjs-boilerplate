@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// ข้อมูลสินค้าเริ่มต้น
+// ข้อมูลสินค้าเริ่มต้น (แก้ไขรูปร่างแป้งพัฟให้ถูกต้องแล้ว)
 const initialProducts = [
   {
     id: '1',
@@ -12,7 +12,7 @@ const initialProducts = [
     price: 159,
     rating: 4.8,
     image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&q=80',
-    desc: 'ลิปทินท์เนื้อเวลเวท นุ่มฟู ติดทนนาน ไม่ตกมุกปาก เหมาะสำหรับนักศึกษาฉีดเติมระหว่างวัน',
+    desc: 'ลิปทินท์เนื้อเวลเวท นุ่มฟู ติดทนนาน ไม่ตกร่องปาก เหมาะสำหรับนักศึกษาเติมระหว่างวัน',
   },
   {
     id: '2',
@@ -21,7 +21,7 @@ const initialProducts = [
     price: 289,
     rating: 4.9,
     image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&q=80',
-    desc: 'ครีมกันแดดสูตรน้ำ บางเบา คุมมัน ไม่เยิ้มระหว่างวัน เหมาะสำหรับทำกิจกรรมกลางแจ้งในวิทยาลัย',
+    desc: 'ครีมกันแดดสูตรน้ำ บางเบา คุมมัน ไม่เยิ้มระหว่างวัน เหมาะสำหรับทำกิจกรรมกลางแจ้ง',
   },
   {
     id: '3',
@@ -56,7 +56,7 @@ const initialProducts = [
     category: 'แป้งพัฟ',
     price: 199,
     rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=800&q=80',
     desc: 'แป้งพัฟคุมมัน เบลอรูขุมขน ปกปิดเรียบเนียน ไม่เป็นคราบระหว่างวัน',
   },
 ];
@@ -163,7 +163,7 @@ export default function MarketPage() {
                   : 'bg-white border-slate-200 hover:border-pink-300 hover:shadow-slate-300/50'
               }`}
             >
-              {/* Product Image Container (คลิกที่รูปเพื่อเปิดรูปใหญ่) */}
+              {/* Product Image Container */}
               <div 
                 onClick={() => setFullImageProduct(item)}
                 className="relative h-60 w-full overflow-hidden bg-slate-800 group cursor-pointer"
@@ -175,7 +175,6 @@ export default function MarketPage() {
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                 />
                 
-                {/* Visual indicator for clicking */}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <span className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-white/20 flex items-center gap-1">
                     🔍 คลิกดูรูปใหญ่
@@ -189,7 +188,7 @@ export default function MarketPage() {
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.stopPropagation(); // ไม่ให้ทับซ้อนกับการเปิดรูปใหญ่
+                    e.stopPropagation();
                     setSelectedProduct3D(item);
                   }}
                   className="absolute bottom-3 right-3 px-3.5 py-2 rounded-xl text-xs font-bold bg-black/80 text-white backdrop-blur-md border border-white/20 hover:bg-pink-600 hover:border-pink-500 transition-all flex items-center gap-1.5 shadow-xl cursor-pointer active:scale-95 z-10"
@@ -232,7 +231,7 @@ export default function MarketPage() {
         </div>
       </main>
 
-      {/* 1. Fullscreen Image Modal (ดูรูปเต็มจอ) */}
+      {/* Fullscreen Image Modal */}
       {fullImageProduct && (
         <div 
           className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
@@ -262,7 +261,7 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* 2. 3D Preview Modal */}
+      {/* 3D Preview Modal */}
       {selectedProduct3D && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl transition-all relative ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -310,7 +309,7 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* 3. Form Modal สำหรับเพิ่มสินค้าใหม่ */}
+      {/* Form Modal สำหรับเพิ่มสินค้าใหม่ */}
       {showAddForm && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className={`w-full max-w-md p-6 rounded-3xl border shadow-2xl transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -380,7 +379,6 @@ export default function MarketPage() {
                   onChange={(e) => setNewImage(e.target.value)}
                   className={`w-full px-4 py-2.5 rounded-xl text-sm border outline-none focus:border-pink-500 transition ${darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
                 />
-                <span className="text-[10px] text-slate-400 mt-1 block">แนะนำให้นำลิงก์รูปภาพสัดส่วน 1:1 หรือสี่เหลี่ยมผืนผ้าจาก Unsplash หรือเว็บฝากรูปมาวาง</span>
               </div>
 
               <div>
